@@ -30,7 +30,7 @@ jobs:
           if [ "${{ github.event.client_payload.distribution_env }}" == "production" ]; then
             echo "PACKAGE_NAME=react" >> $GITHUB_ENV
             echo "PACKAGE_DIST=latest" >> $GITHUB_ENV
-          esif [ "${{ github.event.client_payload.distribution_env }}" == "next" ]; then
+          elif [ "${{ github.event.client_payload.distribution_env }}" == "next" ]; then
             echo "PACKAGE_NAME=react" >> $GITHUB_ENV
             echo "PACKAGE_DIST=next" >> $GITHUB_ENV
           elif [ "${{ github.event.client_payload.distribution_env }}" == "canary" ]; then
