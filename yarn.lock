@@ -14,14 +14,14 @@ loose-envify@^1.1.0:
   dependencies:
     js-tokens "^3.0.0 || ^4.0.0"
 
-"react/canary@npm:react@18.3.0-canary-247738465-20240130", "react/next@npm:react@18.3.0-canary-247738465-20240130":
-  version "18.3.0-canary-247738465-20240130"
-  resolved "https://registry.yarnpkg.com/react/-/react-18.3.0-canary-247738465-20240130.tgz#a45a6b81dbd7c2a82e79ec5576ee2405e3e93661"
-  integrity sha512-wOY5zH6ly8dYIyBd9VwowWeu7pX9FX67gPsVq7pBswlw3CL76DZ3G45jTsw9PHZn2CW80TS+ebX9qlTSIxZ70Q==
+"react/canary@npm:react@18.3.0-canary-1219d57fc-20240201":
+  version "18.3.0-canary-1219d57fc-20240201"
+  resolved "https://registry.yarnpkg.com/react/-/react-18.3.0-canary-1219d57fc-20240201.tgz#d3ad265eb46a366dc938d9d9bcdfdcbd0be701e1"
+  integrity sha512-mtfV0fmwXYiF9bLOY7W5xGJEJ9aUjdFn4HUkGeIV/uypxngJTen1W/O0jNgsiGijMwLQ1TXSR31GWt4MgL75tg==
   dependencies:
     loose-envify "^1.1.0"
 
-react@18.2.0:
+"react/next@npm:react@", react@18.2.0:
   version "18.2.0"
   resolved "https://registry.yarnpkg.com/react/-/react-18.2.0.tgz#555bd98592883255fa00de14f1151a917b5d77d5"
   integrity sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==
