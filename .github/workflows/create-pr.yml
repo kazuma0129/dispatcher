@@ -28,12 +28,15 @@ jobs:
         if: github.event.client_payload.distribution_env == 'production'
         run: |
           read VERSION_PRD < <(npm dist-tag ls react | awk '/latest:/ {prod=$2} END {print prod}')
+          echo "VERSION_PRD=$VERSION_PRD" >> $GITHUB_ENV
           yarn add -E \
             react@$VERSION_PRD
       - name: Install React Candidates Version
         if: github.event.client_payload.distribution_env == 'candidates'
         run: |
           read VERSION_CANARY VERSION_RC < <(npm dist-tag ls react | awk '/canary:/ {canary=$2} /next:/ {nxt=$2} END {print canary, nxt}')
+          echo "VERSION_CANARY=$VERSION_CANARY" >> $GITHUB_ENV
+          echo "VERSION_NEXT=$VERSION_RC" >> $GITHUB_ENV
           yarn add -E \
             react/canary@npm:react@$VERSION_CANARY \
             react/next@npm:react@$VERSION_NEXT
@@ -44,12 +47,22 @@ jobs:
           else
             echo "HAS_DIFF=true" >> $GITHUB_ENV
           fi
+      - name: Set title and body
+        if: env.HAS_DIFF == 'true'
+        run: |
+          if [ "${{ github.event.client_payload.distribution_env }}" == "production" ]; then
+            echo "PR_TITLE=Bump react to ${{ env.VERSION_PRD }}" >> $GITHUB_ENV
+            echo "BODY=This PR bumps react to ${{ env.VERSION_PRD }}" >> $GITHUB_ENV
+          else
+            echo "PR_TITLE=Bump react to ${{ env.VERSION_CANARY }} and ${{ env.VERSION_NEXT }}" >> $GITHUB_ENV
+            echo "BODY=This PR bumps react to ${{ env.VERSION_CANARY }} and ${{ env.VERSION_NEXT }}" >> $GITHUB_ENV
+          fi
       - uses: peter-evans/create-pull-request@v5
         if: env.HAS_DIFF == 'true'
         with:
           commit-message: Bump react ${{ github.event.client_payload.distribution_env }} to latest version
           delete-branch: true
-          title: Bump react
+          title: Bump react ${{ github.event.client_payload.distribution_env }} to latest version
           reviewers: kazuma0129
         env: 
           GITHUB_TOKEN: ${{ steps.generate-gtihub-token.outputs.token }}
