@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "react": "18.0.0",
+    "react": "18.2.0",
     "react/canary": "npm:react@18.3.0-canary-247738465-20240130",
     "react/next": "npm:react@18.3.0-canary-247738465-20240130"
   }
