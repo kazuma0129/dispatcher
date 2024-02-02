@@ -20,14 +20,34 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-      # - uses: actions/setup-node@v3
-      #   with:
-      #     cache: "npm"
-      # - run: npm install
-      - run: touch test.txt
-      - uses: peter-evans/create-pull-request@v5
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          commit-message: Update xxxx file
+          node-version-file: '.nvmrc'
+      - name: Install React Latest Version
+        if: github.event.client_payload.distribution_env == 'production'
+        run: |
+          read VERSION_PRD < <(npm dist-tag ls react | awk '/latest:/ {prod=$2} END {print prod}')
+          yarn add -E \
+            react@$VERSION_PRD
+      - name: Install React Candidates Version
+        if: github.event.client_payload.distribution_env == 'candidates'
+        run: |
+          read VERSION_CANARY VERSION_RC < <(npm dist-tag ls react | awk '/canary:/ {canary=$2} /next:/ {next=$2} END {print canary, next}')
+          yarn add -E \
+            react/canary@npm:react@$VERSION_CANARY \
+            react/next@npm:react@$VERSION_NEXT
+      - name: Check for changes
+        run: |
+          if git diff --exit-code; then
+            echo "HAS_DIFF=false" >> $GITHUB_ENV
+          else
+            echo "HAS_DIFF=true" >> $GITHUB_ENV
+          fi
+      - uses: peter-evans/create-pull-request@v5
+        if: env.HAS_DIFF == 'true'
+        with:
+          commit-message: Bump react
           delete-branch: true
           title: Update xxxx file
           reviewers: kazuma0129
