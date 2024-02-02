@@ -51,11 +51,11 @@ jobs:
         if: env.HAS_DIFF == 'true'
         run: |
           if [ "${{ github.event.client_payload.distribution_env }}" == "production" ]; then
-            echo "PR_TITLE=Bump react to ${{ env.VERSION_PRD }}" >> $GITHUB_ENV
-            echo "BODY=This PR bumps react to ${{ env.VERSION_PRD }}" >> $GITHUB_ENV
+            echo "PR_TITLE=Bump react to `${{ env.VERSION_PRD }}`" >> $GITHUB_ENV
+            echo "BODY=This PR bumps react to `${{ env.VERSION_PRD }}`" >> $GITHUB_ENV
           else
-            echo "PR_TITLE=Bump react to ${{ env.VERSION_CANARY }} and ${{ env.VERSION_NEXT }}" >> $GITHUB_ENV
-            echo "BODY=This PR bumps react to ${{ env.VERSION_CANARY }} and ${{ env.VERSION_NEXT }}" >> $GITHUB_ENV
+            echo "PR_TITLE=Bump react to `${{ env.VERSION_CANARY }}` and `${{ env.VERSION_NEXT }}`" >> $GITHUB_ENV
+            echo "BODY=This PR bumps react to `${{ env.VERSION_CANARY }}` and `${{ env.VERSION_NEXT }}`" >> $GITHUB_ENV
           fi
       - uses: peter-evans/create-pull-request@v5
         if: env.HAS_DIFF == 'true'
