@@ -2,6 +2,7 @@ name: Create a pull request by repository_dispatch
 
 on:
   repository_dispatch:
+    # payload.dist_env: production | next | canary
     types: [update-version]
 
 permissions:
@@ -24,22 +25,47 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version-file: '.nvmrc'
-      - name: Install React Latest Version
-        if: github.event.client_payload.distribution_env == 'production'
+      - name: Set package name and distribution
         run: |
-          read VERSION_PRD < <(npm dist-tag ls react | awk '/latest:/ {prod=$2} END {print prod}')
-          echo "VERSION_PRD=$VERSION_PRD" >> $GITHUB_ENV
-          yarn add -E \
-            react@$VERSION_PRD
-      - name: Install React Candidates Version
-        if: github.event.client_payload.distribution_env == 'candidates'
+          if [ "${{ github.event.client_payload.distribution_env }}" == "production" ]; then
+            echo "PACKAGE_NAME=react" >> $GITHUB_ENV
+            echo "PACKAGE_DIST=latest" >> $GITHUB_ENV
+          esif [ "${{ github.event.client_payload.distribution_env }}" == "next" ]; then
+            echo "PACKAGE_NAME=react" >> $GITHUB_ENV
+            echo "PACKAGE_DIST=next" >> $GITHUB_ENV
+          elif [ "${{ github.event.client_payload.distribution_env }}" == "canary" ]; then
+            echo "PACKAGE_NAME=react" >> $GITHUB_ENV
+            echo "PACKAGE_DIST=canary" >> $GITHUB_ENV
+          fi
+      - name: Install latest version
         run: |
-          read VERSION_CANARY VERSION_RC < <(npm dist-tag ls react | awk '/canary:/ {canary=$2} /next:/ {nxt=$2} END {print canary, nxt}')
-          echo "VERSION_CANARY=$VERSION_CANARY" >> $GITHUB_ENV
-          echo "VERSION_NEXT=$VERSION_RC" >> $GITHUB_ENV
-          yarn add -E \
-            react/canary@npm:react@$VERSION_CANARY \
-            react/next@npm:react@$VERSION_NEXT
+          read VERSION < <(npm dist-tag ls ${{ env.PACKAGE_NAME }} | awk '/${{ env.PACKAGE_DIST }}:/ {version=$2} END {print version}')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          if [ "${{ github.event.client_payload.distribution_env }}" == "production" ]; then
+            yarn add -E \
+              ${{ env.PACKAGE_NAME }}@$VERSION
+          else
+            yarn add -E \
+              ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_DIST }}@npm:${{ env.PACKAGE_NAME }}@$VERSION
+          fi
+
+      # - name: Install React Latest Version
+      #   if: github.event.client_payload.distribution_env == 'production'
+      #   run: |
+      #     read VERSION_PRD < <(npm dist-tag ls react | awk '/latest:/ {prod=$2} END {print prod}')
+      #     echo "VERSION_PRD=$VERSION_PRD" >> $GITHUB_ENV
+      #     yarn add -E \
+      #       react@$VERSION_PRD
+      # - name: Install React Candidates Version
+      #   if: github.event.client_payload.distribution_env == 'candidates'
+      #   run: |
+      #     read VERSION_CANARY VERSION_RC < <(npm dist-tag ls react | awk '/canary:/ {canary=$2} /next:/ {nxt=$2} END {print canary, nxt}')
+      #     echo "VERSION_CANARY=$VERSION_CANARY" >> $GITHUB_ENV
+      #     echo "VERSION_NEXT=$VERSION_RC" >> $GITHUB_ENV
+      #     yarn add -E \
+      #       react/canary@npm:react@$VERSION_CANARY \
+      #       react/next@npm:react@$VERSION_NEXT
+
       - name: Check for changes
         run: |
           if git diff --exit-code; then
@@ -47,23 +73,20 @@ jobs:
           else
             echo "HAS_DIFF=true" >> $GITHUB_ENV
           fi
+
       - name: Set title and body
         if: env.HAS_DIFF == 'true'
         run: |
-          if [ "${{ github.event.client_payload.distribution_env }}" == "production" ]; then
-            echo "PR_TITLE=Bump react to ` ${{ env.VERSION_PRD }} `" >> $GITHUB_ENV
-            echo "BODY=This PR bumps react to `${{ env.VERSION_PRD }}`" >> $GITHUB_ENV
-          else
-            echo "PR_TITLE=Bump react to \`${{ env.VERSION_CANARY }}\` and \`${{ env.VERSION_NEXT }}\`" >> $GITHUB_ENV
-            echo "BODY=This PR bumps react to `${{ env.VERSION_CANARY }}` and `${{ env.VERSION_NEXT }}`" >> $GITHUB_ENV
-          fi
+          echo "PR_TITLE=Update ${{ env.PACKAGE_NAME }} to \`${{ env.VERSION }}\`" >> $GITHUB_ENV
+          echo "BRANCH_NAME=update-react-version/${{ github.event.client_payload.distribution_env }}" >> $GITHUB_ENV
+
       - uses: peter-evans/create-pull-request@v5
         if: env.HAS_DIFF == 'true'
         with:
-          commit-message: ${{ env.PR_TITLE }}
           delete-branch: true
+          commit-message: ${{ env.PR_TITLE }}
           title: ${{ env.PR_TITLE }}
-          body: ${{ env.BODY }}
+          branch: ${{ env.BRANCH_NAME }}
           reviewers: kazuma0129
         env: 
           GITHUB_TOKEN: ${{ steps.generate-gtihub-token.outputs.token }}
