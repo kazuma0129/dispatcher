@@ -60,9 +60,10 @@ jobs:
       - uses: peter-evans/create-pull-request@v5
         if: env.HAS_DIFF == 'true'
         with:
-          commit-message: Bump react ${{ github.event.client_payload.distribution_env }} to latest version
+          commit-message: ${{ env.PR_TITLE }}
           delete-branch: true
-          title: Bump react ${{ github.event.client_payload.distribution_env }} to latest version
+          title: ${{ env.PR_TITLE }}
+          body: ${{ env.BODY }}
           reviewers: kazuma0129
         env: 
           GITHUB_TOKEN: ${{ steps.generate-gtihub-token.outputs.token }}
