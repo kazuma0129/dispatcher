@@ -29,6 +29,7 @@ jobs:
         with:
           commit-message: Update xxxx file
           delete-branch: true
-          token: ${{ steps.generate-gtihub-token.outputs.token }}
           title: Update xxxx file
           reviewers: kazuma0129
+        env: 
+          GITHUB_TOKEN: ${{ steps.generate-gtihub-token.outputs.token }}
