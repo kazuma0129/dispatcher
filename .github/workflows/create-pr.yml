@@ -33,7 +33,7 @@ jobs:
       - name: Install React Candidates Version
         if: github.event.client_payload.distribution_env == 'candidates'
         run: |
-          read VERSION_CANARY VERSION_RC < <(npm dist-tag ls react | awk '/canary:/ {canary=$2} /next:/ {next=$2} END {print canary, next}')
+          read VERSION_CANARY VERSION_RC < <(npm dist-tag ls react | awk '/canary:/ {canary=$2} /next:/ {nxt=$2} END {print canary, nxt}')
           yarn add -E \
             react/canary@npm:react@$VERSION_CANARY \
             react/next@npm:react@$VERSION_NEXT
